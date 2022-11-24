@@ -1,0 +1,128 @@
+@import './vars.scss';
+
+html,
+* {
+	font-family: $fnt_work_sans;
+	margin: 0;
+}
+a,
+button {
+	text-decoration: none;
+	background-color: transparent;
+	border: none;
+	width: 100%;
+	height: 100%;
+	border-radius: 10px;
+}
+
+/*	Animations and mixin definitions	*/
+@mixin dFlex($var, $flexDirection, $alg: center, $jst: center) {
+	@if $var==cont {
+		display: flex;
+		flex-direction: $flexDirection;
+		justify-content: $jst;
+		align-items: $alg;
+	}
+	@if $var==child {
+		display: flex;
+		flex-direction: $flexDirection;
+		justify-content: $jst;
+		align-items: $alg;
+	}
+}
+@keyframes bobMotion {
+	0% {
+		transform: scale(1);
+	}
+	100% {
+		transform: scale(1.2);
+	}
+}
+/*	End of Animations and mixin definitions	*/
+
+/*
+	Home/ index.js styling
+*/
+.wrapper_home {
+	.recenter {
+		position: absolute;
+		top: 2em;
+		right: 2em;
+		width: 48px;
+		height: 48px;
+		z-index: 10;
+		background-color: $white_dark;
+		border-radius: 10px;
+		cursor: pointer;
+		@include dFlex(child, column);
+		&:hover {
+			transform: scale(1.15);
+			transition: 0.12s ease-in-out;
+		}
+	}
+	.map {
+		.marker {
+			background-image: url('../public/assets/housePin.svg');
+			background-size: contain;
+			width: 32px;
+			height: 32px;
+			border-radius: 100%;
+			cursor: pointer;
+			//animation: bobMotion 1s infinite alternate;
+		}
+		.mapboxgl-popup {
+			max-width: 200px;
+			border: none;
+		}
+
+		.mapboxgl-popup-content {
+			text-align: center;
+		}
+	}
+	.action__items {
+		background-color: $white_pure;
+		padding: 1em;
+
+		.header {
+			margin: 1em;
+			@include dFlex(child, row, $jst: space-between);
+			.profile {
+				width: 15%;
+				@include dFlex(child, row, $jst: space-between);
+			}
+		}
+
+		.action__buttons {
+			margin: 1em;
+			@include dFlex(child, row, $jst: space-around);
+
+			.action__buttons--button {
+				background: lightgray;
+				height: 128px;
+				width: 20%;
+				border-radius: 10px;
+				@include dFlex(child, column);
+
+				&:hover {
+					transform: scale(0.95);
+					transition: 0.12s ease-in-out;
+				}
+
+				.child {
+					color: black;
+					@include dFlex(child, column);
+				}
+			}
+		}
+
+		.action__link {
+			border: 1px solid red;
+			width: 100%;
+			@include dFlex(child, row);
+		}
+	}
+}
+
+/*
+	Search.js styling
+*/
