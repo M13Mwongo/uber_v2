@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import tw from 'tailwind-styled-components'
 import Map, { mapToken } from '../components/Map'
 import RideSelector from './RideSelector.js'
 
@@ -38,19 +37,12 @@ const Confirm = ({ startpoint, endpoint }) => {
 	}, [startpoint, endpoint])
 
 	return (
-		<Wrapper>
+		<div>
 			<Map startingPoint={start} destinationPoint={destination} />
-			<Title>Choose a ride from the options below</Title>
+			<h1>Choose a ride from the options below</h1>
 			<RideSelector startingPoint={start} destinationPoint={destination} />
-		</Wrapper>
+		</div>
 	)
 }
 
 export default Confirm
-
-const Wrapper = tw.div`
-	flex flex-col h-screen bg-white 
-`
-const Title = tw.div`
-text-gray-800 text-center text-xs py-2 borderb italic
-`

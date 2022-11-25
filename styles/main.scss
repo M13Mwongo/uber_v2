@@ -15,7 +15,9 @@ button {
 	border-radius: 10px;
 }
 
-/*	Animations and mixin definitions	*/
+/*******	
+	Animations and mixin definitions	
+*******/
 @mixin dFlex($var, $flexDirection, $alg: center, $jst: center) {
 	@if $var==cont {
 		display: flex;
@@ -30,31 +32,76 @@ button {
 		align-items: $alg;
 	}
 }
-@keyframes bobMotion {
-	0% {
-		transform: scale(1);
+@mixin absPos($var, $top: '', $left: '', $right: '', $bottom: '', $zInd) {
+	@if $var==TR {
+		position: absolute;
+		top: $top;
+		right: $right;
+		z-index: $zInd;
 	}
-	100% {
-		transform: scale(1.2);
+	@if $var==TL {
+		position: absolute;
+		top: $top;
+		left: $left;
+		z-index: $zInd;
+	}
+	@if $var==BR {
+		position: absolute;
+		bottom: $bottom;
+		right: $right;
+		z-index: $zInd;
+	}
+	@if $var==BL {
+		position: absolute;
+		bottom: $bottom;
+		left: $left;
+		z-index: $zInd;
+	}
+	@if $var==offTop {
+		position: absolute;
+		top: $top;
+		right: $right;
+		z-index: $zInd;
 	}
 }
-/*	End of Animations and mixin definitions	*/
+@keyframes bobMotion {
+	0% {
+		transform: translateY(0);
+	}
+	20% {
+		transform: translateY(-2px);
+	}
+	30% {
+		transform: translateY(1px);
+	}
+	40% {
+		transform: translateY(3px);
+	}
+	50% {
+		transform: translateY(-1px);
+	}
+	60% {
+		transform: translateY(0px);
+	}
+	100% {
+		transform: translateY(0);
+	}
+}
+/*******	End of Animations and mixin definitions	*******/
 
 /*
 	Home/ index.js styling
 */
-.wrapper_home {
+.wrapper {
 	.recenter {
-		position: absolute;
-		top: 2em;
-		right: 2em;
 		width: 48px;
 		height: 48px;
-		z-index: 10;
 		background-color: $white_dark;
 		border-radius: 10px;
 		cursor: pointer;
 		@include dFlex(child, column);
+		@include absPos(TR, $top: 2em, $right: 2em, $zInd: 10);
+
 		&:hover {
 			transform: scale(1.15);
 			transition: 0.12s ease-in-out;
@@ -79,46 +126,22 @@ button {
 			text-align: center;
 		}
 	}
-	.action__items {
+	.search__container {
+		border-radius: 5px;
 		background-color: $white_pure;
 		padding: 1em;
+		width: 500px;
+		@include absPos(TL, $top: 1em, $left: 1em, $zInd: 10);
 
 		.header {
 			margin: 1em;
+			padding-bottom: 1em;
+			border-bottom: 2px solid black;
 			@include dFlex(child, row, $jst: space-between);
+
 			.profile {
-				width: 15%;
 				@include dFlex(child, row, $jst: space-between);
 			}
-		}
-
-		.action__buttons {
-			margin: 1em;
-			@include dFlex(child, row, $jst: space-around);
-
-			.action__buttons--button {
-				background: lightgray;
-				height: 128px;
-				width: 20%;
-				border-radius: 10px;
-				@include dFlex(child, column);
-
-				&:hover {
-					transform: scale(0.95);
-					transition: 0.12s ease-in-out;
-				}
-
-				.child {
-					color: black;
-					@include dFlex(child, column);
-				}
-			}
-		}
-
-		.action__link {
-			border: 1px solid red;
-			width: 100%;
-			@include dFlex(child, row);
 		}
 	}
 }
@@ -126,3 +149,90 @@ button {
 /*
 	Search.js styling
 */
+
+.search__wrapper {
+	@include dFlex(cont, column);
+
+	.search__header {
+		width: 100%;
+		button {
+			width: 120px;
+			padding: 0.3em;
+			border: 2px solid $white_dark;
+			@include dFlex(child, row, $alg: center, $jst: space-around);
+
+			&:hover {
+				background-color: $white_dark;
+				transition: 0.12s ease-in-out;
+				cursor: pointer;
+				animation: bobMotion 0.25s alternate infinite;
+			}
+		}
+	}
+
+	.search__inputContainer {
+		width: 100%;
+		margin-top: 2em;
+
+		.search__input--input {
+			margin: 1em 0em;
+			@include dFlex(child, row, $jst: space-between);
+
+			input {
+				width: 80%;
+				background-color: $white_medium;
+				height: 30px;
+				border: 1px solid $black_dark;
+				border-radius: 5px;
+				padding: 0.5em 1em;
+			}
+		}
+		.search__input--line {
+			height: 120px;
+			@include dFlex(child, row, $jst: space-between);
+
+			.vLine {
+				margin-left: 0.25em;
+			}
+
+			.searchResults__wrapper {
+				width: 80%;
+				overflow-y: scroll;
+				padding: 1em 0.25em;
+				background-color: $white_light;
+				color: $black_dark;
+				position: absolute;
+				right: 1em;
+				z-index: 12;
+				//@include absPos(offTop, $top: 47%, $right: 1em, $zInd: 12);
+
+				.result__wrapper {
+					border-top: 2px solid $black_dark;
+					padding: 0.1em 0.3em;
+
+					.result__title {
+						font-weight: 600;
+					}
+					.result__description {
+						font-size: $fnt_xs;
+					}
+					&:hover {
+						cursor: pointer;
+						transition: 0.12s ease-in-out;
+						background-color: $white_dark;
+					}
+				}
+			}
+		}
+	}
+}
+
+::-webkit-scrollbar {
+	width: 5px;
+}
+::-webkit-scrollbar-thumb {
+	background-color: $black_dark;
+}
+::-webkit-scrollbar-track {
+	background-color: $gray_light;
+}

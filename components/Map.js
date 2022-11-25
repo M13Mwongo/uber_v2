@@ -1,49 +1,67 @@
 import React, { useEffect, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import { useCookies } from 'react-cookie'
-import { Circle } from '../public'
-import { BsFillPinMapFill as Mappin } from 'react-icons/bs'
+import { useStateValue } from '../pages/contextAPI/StateProvider'
 
 export const mapToken = (mapboxgl.accessToken =
 	'pk.eyJ1IjoibW1tOTciLCJhIjoiY2wybHdpM204MHI0NjNkbnFnbjFneG05dCJ9.igV5GTfa9RLOXtK_SaeOXQ')
 
-export const mapDefaults = () => {
-	return { zoom: 20 }
-}
-const Map = ({ startingPoint, destinationPoint }) => {
+const Map = ({ contextStartPoint, contextEndPoint }) => {
 	const [cookies, setCookie, removeCookie] = useCookies([
 		'latitude',
 		'longitude'
 	])
 	const [state, setState] = useState({
 		latitude: cookies.latitude || 37,
-		longitude: cookies.longitude || 2
+		longitude: cookies.longitude || 2,
+		startPin: contextStartPoint,
+		destinationPin: contextEndPoint
 	})
+	const [{ startPoint, endPoint }] = useStateValue()
 
 	//add current location marker to map
-	const addMarkerToMap = (map, coord) => {
-		const el = document.createElement('div')
-		el.className = 'marker'
+	// const addMarkerToMap = (map, coord) => {
+	// 	const el = document.createElement('div')
+	// 	el.className = 'marker'
 
-		new mapboxgl.Marker(el)
-			.setLngLat(coord)
-			.setPopup(
-				new mapboxgl.Popup({ offset: 25 }) // add popups
-					.setHTML(`<h3>Your Location</h3>`)
-			)
+	// 	new mapboxgl.Marker(el)
+	// 		.setLngLat(coord)
+	// 		.setPopup(
+	// 			new mapboxgl.Popup({ offset: 25 }) // add popups
+	// 				.setHTML(`<h3>Your Location</h3>`)
+	// 		)
+	// 		.addTo(map)
+	// }
+	const addMarker = (event, param) => {
+		var coordinates = event.lngLat
+		console.log(coordinates)
+
+		new mapboxgl.Marker({})
+			.setLngLat([coordinates.lng, coordinates.lat])
+			.addTo(param)
+	}
+	const addMarkerEvent = (param) => {
+		console.log(event.target)
+		// var coordinates = event.lngLat
+		// console.log(coordinates)
+
+		// new mapboxgl.Marker({})
+		// 	.setLngLat([coordinates.lng, coordinates.lat])
+		// 	.addTo(param)
+	}
+	const addMarkerFunction = (map) => (event) => {
+		var coordinates = event.lngLat
+		//console.log(coordinates)
+
+		new mapboxgl.Marker({})
+			.setLngLat([coordinates.lng, coordinates.lat])
 			.addTo(map)
-	}
-	//start marker
-	const addStartToMap = (map, coord) => {
-		new mapboxgl.Marker().setLngLat(coord).addTo(map)
-	}
-	//destination marker
-	const addDestinationToMap = (map, coord) => {
-		new mapboxgl.Marker({ color: 'black' }).setLngLat(coord).addTo(map)
 	}
 
 	//load map onto screen
 	useEffect(() => {
+		//Add start/end point markers
+
 		let nav = navigator.geolocation
 		if ('geolocation' in navigator) {
 			nav.getCurrentPosition((pos) => {
@@ -79,27 +97,31 @@ const Map = ({ startingPoint, destinationPoint }) => {
 					zoom: 13,
 					projection: 'mercator'
 				})
+
 				map.dragRotate.disable()
 				map.touchZoomRotate.disableRotation()
-				addMarkerToMap(map, locatedCoords)
+				map.addControl(
+					new mapboxgl.GeolocateControl({
+						positionOptions: { enableHighAccuracy: false, timeout: 12000 },
+						showUserHeading: true,
+						trackUserLocation: true
+					})
+				)
+				map.addControl(new mapboxgl.FullscreenControl())
+				map.addControl(new mapboxgl.NavigationControl())
+				map.on('click', addMarkerFunction(map))
 
 				//placing markers
-				if (startingPoint) {
-					addStartToMap(map, startingPoint)
-				}
-				if (destinationPoint) {
-					addDestinationToMap(map, destinationPoint)
-				}
-				if (startingPoint && destinationPoint) {
-					map.fitBounds([startingPoint, destinationPoint], { padding: 120 })
-				}
+				// if (startPoint) {
+				// 	new mapboxgl.Marker().setLngLat(startPoint).addTo(map)
+				// }
 			})
 		} else {
 			alert('Geolocator is not available')
 		}
-	}, [])
+	}, [state.startPin])
 
-	return <div id='map' style={{ height: '67vh', width: '100vw' }}></div>
+	return <div id='map' style={{ height: '100vh', width: '100vw' }}></div>
 }
 
 export default Map

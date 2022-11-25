@@ -2,7 +2,7 @@ import Image from 'next/image'
 import logoMain from '../public/assets/logo_big.jpg'
 import pImage from '../public/assets/profileImage.jpg'
 import circle from '../public/assets/filled-circle.png'
-import line from '../public/assets/vertical_line.png'
+import vLine from '../public/assets/vLine.svg'
 import square from '../public/assets/square-full.png'
 import bike from '../public/assets/bike.png'
 import uberx from '../public/assets/uberx.png'
@@ -11,7 +11,8 @@ import uberblack from '../public/assets/uberblack.png'
 import uberblackXL from '../public/assets/uberblacksuv.png'
 import ubercomfort from '../public/assets/uberComfort.png'
 import schedule from '../public/assets/schedule.png'
-import { BiMapPin } from 'react-icons/bi'
+import { BiMapPin, BiUndo } from 'react-icons/bi'
+import { GiHamburgerMenu } from 'react-icons/gi'
 import { IconContext } from 'react-icons'
 
 export const UberLogo = () => {
@@ -28,16 +29,24 @@ export const UserImage = () => {
 		/>
 	)
 }
-export const Circle = () => {
+export const Circle = ({ h, w }) => {
+	return (
+		<Image src={circle} alt='circle' height={h} width={w} placeholder='blur' />
+	)
+}
+export const Square = ({ dim }) => {
 	return (
 		<Image
-			src={circle}
-			alt='circle'
-			height={96}
-			width={96}
+			src={square}
+			alt='square'
+			height={dim}
+			width={dim}
 			placeholder='blur'
 		/>
 	)
+}
+export const Line = ({ h, w }) => {
+	return <Image className='vLine' src={vLine} height={h} width={w} alt='line' />
 }
 export const Pin = () => {
 	return (
@@ -46,18 +55,18 @@ export const Pin = () => {
 		</IconContext.Provider>
 	)
 }
-export const ll = () => {
-	return <Image src={line} alt='line' placeholder='blur' />
-}
-export const sq = () => {
+export const Reset = ({ sz }) => {
 	return (
-		<Image
-			src={square}
-			alt='square'
-			height={20}
-			width={20}
-			placeholder='blur'
-		/>
+		<IconContext.Provider value={{ size: sz, color: 'black' }}>
+			<BiUndo />
+		</IconContext.Provider>
+	)
+}
+export const Menu = () => {
+	return (
+		<IconContext.Provider value={{ size: '2em' }}>
+			<GiHamburgerMenu />
+		</IconContext.Provider>
 	)
 }
 export const Bike = () => {
