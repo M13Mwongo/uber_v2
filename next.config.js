@@ -1,6 +1,11 @@
-/** @type {import('next').NextConfig} */
+// /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+	resolve: {
+		fallback: {
+			fs: false
+		}
+	},
+	reactStrictMode: true
 }
 
 module.exports = nextConfig

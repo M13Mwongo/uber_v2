@@ -151,8 +151,6 @@ button {
 */
 
 .search__wrapper {
-	@include dFlex(cont, column);
-
 	.search__header {
 		width: 100%;
 		button {
@@ -171,12 +169,20 @@ button {
 	}
 
 	.search__inputContainer {
-		width: 100%;
 		margin-top: 2em;
+		height: 150px;
+		@include dFlex(cont, row);
 
-		.search__input--input {
-			margin: 1em 0em;
-			@include dFlex(child, row, $jst: space-between);
+		.search__left_col {
+			width: 10%;
+			height: 100%;
+			@include dFlex(child, column, $jst: space-around);
+		}
+
+		.search__right_col {
+			width: 90%;
+			height: 100%;
+			@include dFlex(child, column, $jst: space-between);
 
 			input {
 				width: 80%;
@@ -186,42 +192,41 @@ button {
 				border-radius: 5px;
 				padding: 0.5em 1em;
 			}
-		}
-		.search__input--line {
-			height: 120px;
-			@include dFlex(child, row, $jst: space-between);
 
-			.vLine {
-				margin-left: 0.25em;
-			}
-
-			.searchResults__wrapper {
-				width: 80%;
+			.search__results {
+				background-color: $white_pure;
+				height: 200px;
+				width: 500px;
+				padding: 1em;
 				overflow-y: scroll;
-				padding: 1em 0.25em;
-				background-color: $white_light;
-				color: $black_dark;
-				position: absolute;
-				right: 1em;
-				z-index: 12;
-				//@include absPos(offTop, $top: 47%, $right: 1em, $zInd: 12);
+				box-shadow: 0px 0px 10px 1px $gray_medium;
+				border-radius: 5px;
 
-				.result__wrapper {
-					border-top: 2px solid $black_dark;
-					padding: 0.1em 0.3em;
+				&:hover {
+					cursor: pointer;
+				}
 
-					.result__title {
-						font-weight: 600;
-					}
-					.result__description {
-						font-size: $fnt_xs;
-					}
-					&:hover {
-						cursor: pointer;
-						transition: 0.12s ease-in-out;
-						background-color: $white_dark;
+				.searchResults__wrapper {
+					scroll-behavior: smooth;
+
+					.result__wrapper {
+						border-bottom: 1px solid black;
+						padding: 0.25em;
+						&:hover {
+							background-color: $white_medium;
+							transition: 0.12s ease-in-out;
+						}
+						.result__title {
+							font-weight: 600;
+						}
+						.result__description {
+							font-size: $fnt_xs;
+						}
 					}
 				}
+			}
+			.search__results--start {
+				@include absPos(TR, $top: 30%, $right: -95%, $zInd: 20);
 			}
 		}
 	}

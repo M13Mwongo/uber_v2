@@ -5,8 +5,7 @@ import Search from './search.js'
 import { UberLogo, Menu } from '../public/index.js'
 
 export default function Home() {
-	const [{ startPoint, endPoint, test }] = useStateValue()
-	const testArray = [18.822968, -34.070529]
+	const [{ startLat, startLong, test }] = useStateValue()
 
 	return (
 		<div className='wrapper'>
@@ -16,14 +15,13 @@ export default function Home() {
 
 			<div className='search__container'>
 				<div className='header'>
-					ContextStart: {startPoint}
+					<UberLogo />
+					{/* StartCoord:[{startLong},{startLat}] */}
 					<div className='profile'>
 						<Menu />
 					</div>
 				</div>
-				<div className='search'>
-					<Search />
-				</div>
+				<Search />
 			</div>
 		</div>
 	)

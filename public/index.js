@@ -16,7 +16,7 @@ import { GiHamburgerMenu } from 'react-icons/gi'
 import { IconContext } from 'react-icons'
 
 export const UberLogo = () => {
-	return <Image src={logoMain} alt='Logo' height={48} width={122} />
+	return <Image src={logoMain} alt='Logo' height={42} width={120} />
 }
 export const UserImage = () => {
 	return (

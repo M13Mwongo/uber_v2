@@ -1,24 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useStateValue } from './contextAPI/StateProvider.js'
 import axios from 'axios'
 import { mapToken } from '../components/Map'
 import { Reset, Circle, Square, Line } from '../public'
-import {
-	Box,
-	Button,
-	Collapse,
-	Slide,
-	Fade,
-	Grow,
-	Popover,
-	Typography
-} from '@mui/material'
+import { Box, Button, Typography } from '@mui/material'
+import { TRUE } from 'sass'
 
 const Search = () => {
 	const [state, setState] = useState({
 		startpoint: '',
 		endpoint: '',
-		selectedStart: [],
+		selectedStart: null,
 		selectedEnd: [],
 		startSearchResult: [],
 		endSearchResult: [],
@@ -26,7 +18,8 @@ const Search = () => {
 		endChecked: false
 	})
 	//define parameters for contextAPI
-	const [{ startPoint, endPoint }, dispatch] = useStateValue()
+	const [{ endPoint, startLat, startLong, errorMessage }, dispatch] =
+		useStateValue()
 
 	//Regular functions
 	const handleChange = (id) => {
@@ -44,18 +37,34 @@ const Search = () => {
 			startSearchResult: [],
 			endSearchResult: []
 		})
+		dispatch({
+			type: 'RESET'
+		})
 	}
 	const getStartCoordinate = (point) => {
+		// const errorHandler = (err) => {
+		// 	dispatch({
+		// 		type: 'AXIOS_ERROR',
+		// 		errorCode: err.code,
+		// 		errorMessage: err.message
+		// 	})
+		// 	console.log(errorMessage)
+		// }
+
 		if (state.startpoint !== '') {
 			axios
 				.get(
 					`https://api.mapbox.com/geocoding/v5/mapbox.places/${point}.json?` +
-						new URLSearchParams({ access_token: mapToken, limit: 8 })
+						new URLSearchParams({
+							access_token: mapToken,
+							limit: 8,
+							proximity: 'ip'
+						})
 				)
 				.then((response) => {
 					let resultArray = response.data.features
 					setState({ ...state, startSearchResult: resultArray })
-					console.log(resultArray)
+					//console.log(resultArray)
 				})
 				.catch((err) => console.log(err))
 		}
@@ -65,7 +74,11 @@ const Search = () => {
 			axios
 				.get(
 					`https://api.mapbox.com/geocoding/v5/mapbox.places/${point}.json?` +
-						new URLSearchParams({ access_token: mapToken, limit: 8 })
+						new URLSearchParams({
+							access_token: mapToken,
+							limit: 8,
+							proximity: 'ip'
+						})
 				)
 				.then((response) => {
 					let resultArray = response.data.features
@@ -77,16 +90,16 @@ const Search = () => {
 	const selectedStartCoordinate = (point) => {
 		setState({
 			...state,
-			selectedStart: point.center,
+			selectedStart: [point.center[0], point.center[1]],
 			startpoint: point.text
 		})
 		//dispatch to ContextAPI
 		dispatch({
 			type: 'START_LOCATION',
+			latitude: point.center[0],
+			longtitude: point.center[1],
 			location: point.center
 		})
-		console.log('Selected Start Coordinate:' + state.selectedStart)
-		console.log('ContextStart:' + typeof startPoint)
 	}
 	const selectedEndCoordinate = (point) => {
 		setState({
@@ -109,17 +122,18 @@ const Search = () => {
 			selectedEndCoordinate(point)
 		}
 	}
+	const updateStartInput = (e) => {
+		setState({
+			...state,
+			startpoint: e.target.value,
+			startChecked: true
+		})
+	}
 
 	//destructured Component
 	const SearchResults = ({ id, searchResults }) => {
 		return (
-			<div
-				className='searchResults__wrapper'
-				style={{
-					top: id === 'start' ? '48%' : id === 'end' && '85%',
-					height: '100px'
-				}}
-			>
+			<div className='searchResults__wrapper'>
 				{searchResults.map((result) => (
 					<div
 						className='result__wrapper'
@@ -140,11 +154,17 @@ const Search = () => {
 				anchorEl={anchorEl}
 				onClose={handleClose}
 				anchorOrigin={{
-					vertical: 'bottom',
-					horizontal: 'left'
+					vertical: 'top',
+					horizontal: 'right'
 				}}
 			>
-				<Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
+				<Typography sx={{ p: 2 }}>
+					<SearchResults
+						id='start'
+						searchResults={state.startSearchResult}
+						searchConfirm={state.selectedStart}
+					/>
+				</Typography>
 			</Popover>
 		)
 	}
@@ -161,51 +181,62 @@ const Search = () => {
 					<Reset sz='2em' />
 					<span>Start Again</span>
 				</button>
+				{/* <Button aria-describedby={id} variant='contained' onClick={handleClick}>
+					Open Popover
+				</Button> */}
 			</div>
 			{/* Container holding the search element */}
 			<div className='search__inputContainer'>
-				<div className='search__input--input'>
+				<div className='search__left_col'>
 					<Circle h={12} w={12} />
+					<Line h={50} w={2.5} />
+					<Square dim={12} />
+				</div>
+				<div className='search__right_col'>
 					<input
-						className='search__input'
 						placeholder='Enter pickup location'
 						value={state.startpoint}
-						onChange={(e) => {
-							setState({ ...state, startpoint: e.target.value })
-						}}
+						onChange={updateStartInput}
+						onBlur={() => setState({ ...state, startChecked: false })}
 					/>
-				</div>
-				<div
-					className='search__input--line'
-					//style={{ height: state.startChecked ? '150px' : '50px' }}
-				>
-					<Line h={50} w={2.5} />
-					<SearchResults
-						id='start'
-						searchResults={state.startSearchResult}
-						searchConfirm={state.selectedStart}
-					/>
-				</div>
-				<div className='search__input--input'>
-					<Square dim={12} />
+					<div
+						className='search__results search__results--start'
+						style={{ display: state.startChecked ? 'block' : 'none' }}
+					>
+						<SearchResults
+							id='start'
+							searchResults={state.startSearchResult}
+							searchConfirm={state.selectedStart}
+						/>
+					</div>
+
+					{/* <div
+						className='search__input--line'
+						//style={{ height: state.startChecked ? '150px' : '50px' }}
+					>
+						<SearchResults
+							id='start'
+							searchResults={state.startSearchResult}
+							searchConfirm={state.selectedStart}
+						/>
+					</div> */}
 					<input
-						className='search__input'
 						placeholder='Enter destination'
 						value={state.endpoint}
 						onChange={(e) => {
 							setState({ ...state, endpoint: e.target.value })
 						}}
 					/>
-				</div>
-				<div
-					className='search__input--line'
-					style={{ height: state.endChecked ? '150px' : '50px' }}
-				>
-					<SearchResults
-						id='end'
-						searchResults={state.endSearchResult}
-						searchConfirm={state.selectedEnd}
-					/>
+					{/* <div
+						className='search__input--line'
+						style={{ height: state.endChecked ? '150px' : '50px' }}
+					>
+						<SearchResults
+							id='end'
+							searchResults={state.endSearchResult}
+							searchConfirm={state.selectedEnd}
+						/>
+					</div> */}
 				</div>
 			</div>
 		</div>
