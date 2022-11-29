@@ -6,7 +6,7 @@ import { Reset, Circle, Square, Line } from '../public'
 import { Box, Button, Typography } from '@mui/material'
 import { TRUE } from 'sass'
 
-const Search = () => {
+const Search = ({ click }) => {
 	const [state, setState] = useState({
 		startpoint: '',
 		endpoint: '',
@@ -87,47 +87,56 @@ const Search = () => {
 				.catch((err) => console.log(err))
 		}
 	}
-	const selectedStartCoordinate = (point) => {
-		setState({
-			...state,
-			selectedStart: [point.center[0], point.center[1]],
-			startpoint: point.text
-		})
-		//dispatch to ContextAPI
-		dispatch({
-			type: 'START_LOCATION',
-			latitude: point.center[0],
-			longtitude: point.center[1],
-			location: point.center
-		})
-	}
-	const selectedEndCoordinate = (point) => {
-		setState({
-			...state,
-			selectedEnd: point.center,
-			endpoint: point.text
-		})
-		dispatch({
-			type: 'END_LOCATION',
-			location: point.center
-		})
-		console.log('Selected End Coordinate:' + state.selectedEnd)
-		console.log('ContextEnd:' + endPoint)
-	}
 	const selectedCoordinate = (id, point) => {
 		if (id === 'start') {
-			selectedStartCoordinate(point)
+			setState({
+				...state,
+				selectedStart: [point.center[0], point.center[1]],
+				startpoint: point.text,
+				startChecked: false
+			})
+			//dispatch to ContextAPI
+			dispatch({
+				type: 'START_LOCATION',
+				latitude: point.center[1],
+				longitude: point.center[0],
+				location: point.center
+			})
+			// console.log('State Start Coordinate:' + state.selectedStart)
+			// console.log('ContextEnd:' + startLong + ',' + startLat)
 		}
 		if (id === 'end') {
-			selectedEndCoordinate(point)
+			setState({
+				...state,
+				selectedStart: [point.center[0], point.center[1]],
+				endpoint: point.text,
+				endChecked: false
+			})
+			dispatch({
+				type: 'END_LOCATION',
+				latitude: point.center[1],
+				longitude: point.center[0],
+				location: point.center
+			})
+			console.log('State End Coordinate:' + state.selectedEnd)
+			console.log('ContextEnd:' + endPoint)
 		}
 	}
-	const updateStartInput = (e) => {
-		setState({
-			...state,
-			startpoint: e.target.value,
-			startChecked: true
-		})
+	const updateInput = (id) => (e) => {
+		if (id === 'start') {
+			setState({
+				...state,
+				startpoint: e.target.value,
+				startChecked: true
+			})
+		}
+		if (id === 'end') {
+			setState({
+				...state,
+				endpoint: e.target.value,
+				endChecked: true
+			})
+		}
 	}
 
 	//destructured Component
@@ -135,37 +144,16 @@ const Search = () => {
 		return (
 			<div className='searchResults__wrapper'>
 				{searchResults.map((result) => (
-					<div
+					<button
 						className='result__wrapper'
 						key={result.id}
 						onClick={() => selectedCoordinate(id, result)}
 					>
 						<div className='result__title'>{result.text}</div>
 						<div className='result__description'>{result.place_name}</div>
-					</div>
+					</button>
 				))}
 			</div>
-		)
-	}
-	const Pop = () => {
-		return (
-			<Popover
-				open={open}
-				anchorEl={anchorEl}
-				onClose={handleClose}
-				anchorOrigin={{
-					vertical: 'top',
-					horizontal: 'right'
-				}}
-			>
-				<Typography sx={{ p: 2 }}>
-					<SearchResults
-						id='start'
-						searchResults={state.startSearchResult}
-						searchConfirm={state.selectedStart}
-					/>
-				</Typography>
-			</Popover>
 		)
 	}
 	//execute coordinate functions when user types in values
@@ -181,9 +169,6 @@ const Search = () => {
 					<Reset sz='2em' />
 					<span>Start Again</span>
 				</button>
-				{/* <Button aria-describedby={id} variant='contained' onClick={handleClick}>
-					Open Popover
-				</Button> */}
 			</div>
 			{/* Container holding the search element */}
 			<div className='search__inputContainer'>
@@ -196,48 +181,35 @@ const Search = () => {
 					<input
 						placeholder='Enter pickup location'
 						value={state.startpoint}
-						onChange={updateStartInput}
-						onBlur={() => setState({ ...state, startChecked: false })}
+						onChange={updateInput('start')}
+						style={{
+							border: state.startpoint ? '2px solid #27ae60' : '2px solid black'
+						}}
 					/>
 					<div
 						className='search__results search__results--start'
 						style={{ display: state.startChecked ? 'block' : 'none' }}
 					>
-						<SearchResults
-							id='start'
-							searchResults={state.startSearchResult}
-							searchConfirm={state.selectedStart}
-						/>
+						<SearchResults id='start' searchResults={state.startSearchResult} />
 					</div>
-
-					{/* <div
-						className='search__input--line'
-						//style={{ height: state.startChecked ? '150px' : '50px' }}
-					>
-						<SearchResults
-							id='start'
-							searchResults={state.startSearchResult}
-							searchConfirm={state.selectedStart}
-						/>
-					</div> */}
 					<input
 						placeholder='Enter destination'
 						value={state.endpoint}
-						onChange={(e) => {
-							setState({ ...state, endpoint: e.target.value })
+						onChange={updateInput('end')}
+						style={{
+							border: state.endpoint ? '2px solid #27ae60' : '2px solid black'
 						}}
 					/>
-					{/* <div
-						className='search__input--line'
-						style={{ height: state.endChecked ? '150px' : '50px' }}
+					<div
+						className='search__results search__results--end'
+						style={{ display: state.endChecked ? 'block' : 'none' }}
 					>
-						<SearchResults
-							id='end'
-							searchResults={state.endSearchResult}
-							searchConfirm={state.selectedEnd}
-						/>
-					</div> */}
+						<SearchResults id='end' searchResults={state.endSearchResult} />
+					</div>
 				</div>
+			</div>
+			<div className='search__button'>
+				<button onClick={click}>Confirm Trip</button>
 			</div>
 		</div>
 	)
