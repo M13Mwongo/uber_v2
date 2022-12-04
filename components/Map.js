@@ -24,8 +24,8 @@ const addMarkerFunction = (map) => (event) => {
 const Map = () => {
 	const [{ startLong, startLat, endLong, endLat }] = useStateValue()
 	const [state, setState] = useState({
-		stateLat: startLat,
-		stateLong: startLong
+		pickupLat: startLat,
+		pickupLong: startLong
 	})
 	//load map onto screen
 
@@ -35,17 +35,7 @@ const Map = () => {
 				//assign coords from navigator to variables
 				let locatedLat = pos.coords.latitude
 				let locatedLong = pos.coords.longitude
-				setState({ ...state, stateLat: startLat, stateLong: startLong })
-
-				//watch position for updates and update only if there is a change
-				// navigator.geolocation.watchPosition((updatedPos) => {
-				// 	if (updatedPos.coords.latitude !== locatedLat) {
-				// 		locatedLat = updatedPos.coords.latitude
-				// 	}
-				// 	if (updatedPos.coords.longitude !== locatedLong) {
-				// 		locatedLong = updatedPos.coords.longitude
-				// 	}
-				// })
+				setState({ ...state, pickupLat: startLat, pickupLong: startLong })
 
 				//create new instance of map
 				const map = new mapboxgl.Map({
@@ -69,6 +59,15 @@ const Map = () => {
 				map.addControl(new mapboxgl.NavigationControl())
 
 				map.on('load', () => geolocateControl.trigger())
+
+				if (startLat !== null || startLong !== null) {
+					map.on('load', () =>
+						new mapboxgl.Marker({})
+							.setLngLat([startLong, startLat])
+							.addTo(map)
+							.trigger()
+					)
+				}
 				map.on('click', addMarkerFunction(map))
 
 				console.log('Map rendered')
